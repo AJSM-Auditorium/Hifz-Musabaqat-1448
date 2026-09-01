@@ -229,7 +229,7 @@ render();
   const liveResult=document.getElementById('liveResult');
   const liveDragCard=document.getElementById('liveDragCard');
   let suppress=false;
-  socket.on('connect',()=>{liveDot.classList.remove('off');liveStatus.textContent=ROLE==='teacher'?'LIVE':'LIVE — connected';});
+  socket.on('connect',()=>{liveDot.classList.remove('off');liveStatus.textContent=ROLE==='teacher'?'LIVE — waiting for student':'LIVE — connected to teacher';});
   socket.on('disconnect',()=>{liveDot.classList.add('off');liveStatus.textContent='Connection lost — reconnecting…';});
 
   function sendState(extra={}){
@@ -268,7 +268,7 @@ render();
     liveResult.classList.remove('submitted','dragging');
     if(state.submitted && state.score!==null){
       liveResult.classList.add('submitted');
-      liveResult.textContent=`✓ Talabat submitted — ${state.score} / 10 correct`;
+      liveResult.textContent=`✓ Student submitted — ${state.score} / 10 correct`;
     }else if(state.drag){
       liveResult.classList.add('dragging');
       liveResult.textContent=`Student is moving tile ${state.drag.id+1} → Box ${state.drag.targetPos!==null?state.drag.targetPos+1:'…'}`;
@@ -342,3 +342,28 @@ render();
 </script>
 </body>
 </html>
+<style>
+/* iPad landscape / tablet landscape optimization */
+@media screen and (min-width:768px) and (max-width:1366px) and (orientation:landscape){
+  html,body{width:100%;min-width:0;overflow-x:hidden}
+  body{background-size:cover;background-position:center top}
+  .wrap{width:calc(100% - 20px);max-width:none;margin:0 auto;padding:7px 0 12px}
+  .tabs{grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:6px}
+  .tab-btn{min-height:38px;padding:5px 8px;font-size:17px;border-radius:11px}
+  .tab-note{margin:0 0 4px;font-size:11px}
+  .instructions{font-size:11px;margin:0 0 5px;line-height:1.25}
+  .section-title{font-size:11px;margin:4px 0}
+  #board,#answerBoard{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .tile,.answer-slot{min-height:88px;padding:6px;border-radius:11px}
+  .qtext{min-height:68px;font-size:19px;line-height:1.45}
+  .slot-number{width:22px;height:22px;top:4px;right:4px;font-size:10px}
+  .arabic-tile-img,.answer-slot img{max-height:76px}
+  .controls{gap:6px;margin-top:8px}
+  button.control{padding:7px 11px;font-size:12px;border-radius:9px}
+  #message{min-height:20px;margin:6px 2px 0;font-size:13px}
+  #answer{margin-top:8px;padding:10px}
+  .answer-grid{gap:6px}
+  .answer-item{min-height:70px;padding:6px;border-radius:9px}
+  .answer-item .qtext{font-size:17px}
+}
+</style>
