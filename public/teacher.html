@@ -107,6 +107,82 @@ button.control{border:0;border-radius:13px;padding:12px 18px;font-weight:800;fon
 .show-number{position:absolute;top:7px;right:8px;width:27px;height:27px;border-radius:50%;background:#eef2ef;color:#6e7c75;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}.answer-item{position:relative}.answer-grid{direction:rtl}
 .live-result{margin:4px auto 8px;text-align:center;font-weight:800;color:#735d48;min-height:20px}.live-result.submitted{font-size:16px;color:#5f765f}.live-result.dragging{color:#9a6b2d}
 .teacher-only{display:flex}.teacher-only button{opacity:1;cursor:pointer}
+
+/* FINAL TIMER POSITION
+   Timer is on the first line at the left.
+   The round title ("10 tiles") and instruction/Tiles stay centered
+   in their existing rows.
+*/
+.timer-panel,
+.timer-container,
+#timerPanel {
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Teacher: compact timer at the left of the first content row. */
+body.teacher-page .timer-panel,
+body.teacher-page .timer-container,
+body.teacher-page #timerPanel,
+.teacher .timer-panel,
+.teacher .timer-container,
+#teacherTimer {
+  width: min(360px, 42vw) !important;
+  margin: 8px 0 4px 12px !important;
+}
+
+/* Student: only the timer display, same position/size family. */
+body.student-page .timer-panel,
+body.student-page .timer-container,
+body.student-page #timerPanel,
+.student .timer-panel,
+.student .timer-container,
+#studentTimer {
+  width: min(180px, 24vw) !important;
+  margin: 8px 0 4px 12px !important;
+}
+
+/* Keep the existing round metadata centered and on its own rows. */
+.round-meta,
+#tabNote,
+.tab-note,
+.tiles-title,
+#tilesTitle,
+.instructions,
+.instruction,
+#instruction,
+#instructions {
+  text-align: center !important;
+}
+
+/* Prevent the timer controls from becoming a huge horizontal box. */
+.timer-panel button,
+.timer-container button,
+#timerPanel button {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  min-height: 30px !important;
+}
+
+/* Mobile: preserve the same concept without squeezing the page. */
+@media (max-width: 700px) {
+  .timer-panel,
+  .timer-container,
+  #timerPanel {
+    width: min(300px, 48vw) !important;
+    margin-left: 8px !important;
+  }
+}
+
+
+/* FINAL BUTTON SPACING: only add a little breathing room */
+.timer-panel button + button,
+.timer-container button + button,
+#timerPanel button + button,
+#teacherTimer button + button {
+  margin-left: 6px !important;
+}
+
 </style>
 <style>
 @font-face{
@@ -124,11 +200,236 @@ button.control{border:0;border-radius:13px;padding:12px 18px;font-weight:800;fon
 <style id="liveStyles">
 .live-status{margin:8px auto 12px;max-width:1100px;text-align:center;font-weight:800;color:#75552b;background:rgba(255,248,232,.88);border:1px solid rgba(184,134,44,.3);border-radius:12px;padding:8px}.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#77a685;margin-right:6px}.live-dot.off{background:#c67d7d}.teacher-only{display:none}.teacher-view .teacher-only{display:block}.drag-live{outline:3px solid #c4934a!important;box-shadow:0 0 0 5px rgba(196,147,74,.18)!important}.live-drag-card{position:fixed;z-index:9999;pointer-events:none;background:rgba(255,253,248,.97);border:2px solid #c4934a;border-radius:14px;padding:8px 14px;box-shadow:0 8px 24px rgba(100,70,40,.2);transform:translate(-50%,-50%);display:none;min-width:120px;text-align:center}.live-drag-card .qtext{min-height:55px;font-size:30px}.live-result{margin:8px auto 12px;max-width:1100px;text-align:center;font-weight:900;font-size:18px;color:#607e6e}.teacher-view #board,.teacher-view #answerBoard{pointer-events:none}.teacher-view .tile{cursor:default}.teacher-view .tab-btn{pointer-events:none}.teacher-header{display:block}.teacher-badge{font-family:'ThemeArabic','Noto Naskh Arabic',serif;font-size:18px;color:#75552b;background:rgba(255,248,232,.9);padding:7px 14px;border-radius:999px;border:1px solid rgba(184,134,44,.3)}
 </style>
+<style id="finalRequestedLayout">
+/* ===== FINAL REQUESTED TIMER + CENTER INFO LAYOUT ===== */
+.round-info-row{
+  display:grid !important;
+  grid-template-columns:25% 75% !important;
+  align-items:start !important;
+  width:100% !important;
+  gap:0 !important;
+  margin:5px 0 7px !important;
+  box-sizing:border-box !important;
+}
+.round-info-row .timer-panel,
+.round-info-row .student-timer-panel{
+  width:calc(100% - 12px) !important;
+  margin:0 0 0 0 !important;
+  min-height:38px !important;
+  box-sizing:border-box !important;
+}
+.round-info-row .timer-panel{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  flex-wrap:nowrap !important;
+  padding:4px 7px !important;
+}
+.round-info-row .timer-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  flex-wrap:nowrap !important;
+}
+.round-info-row .timer-small{
+  margin:0 !important;
+  padding:4px 8px !important;
+  min-height:27px !important;
+  font-size:10px !important;
+}
+.round-info-row .round-meta-line{
+  width:100% !important;
+  min-width:0 !important;
+  display:block !important;
+  text-align:center !important;
+  overflow:visible !important;
+  white-space:normal !important;
+}
+.round-info-row .round-meta-line .tab-note,
+.round-info-row .round-meta-line .instructions,
+.round-info-row .round-meta-line .tiles-inline-title{
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  text-align:center !important;
+  white-space:normal !important;
+  line-height:1.35 !important;
+}
+.round-info-row .round-meta-line .tab-note{font-size:11px !important;}
+.round-info-row .round-meta-line .instructions{font-size:11px !important;}
+.round-info-row .round-meta-line .tiles-inline-title{font-size:12px !important; margin-top:2px !important;}
+
+@media (max-width:700px){
+  .round-info-row{
+    grid-template-columns:25% 75% !important;
+    gap:0 !important;
+  }
+  .round-info-row .timer-panel,
+  .round-info-row .student-timer-panel{
+    width:calc(100% - 6px) !important;
+    min-width:0 !important;
+  }
+  .round-info-row .timer-panel{
+    gap:4px !important;
+    padding:4px 4px !important;
+  }
+  .round-info-row .timer-actions{gap:5px !important;}
+  .round-info-row .timer-small{
+    padding:4px 6px !important;
+    font-size:9px !important;
+  }
+  .round-info-row .timer-display{
+    font-size:19px !important;
+    min-width:42px !important;
+  }
+  .round-info-row .student-timer-panel #studentTimerDisplay{
+    font-size:20px !important;
+  }
+  .round-info-row .round-meta-line .tab-note{font-size:10px !important;}
+  .round-info-row .round-meta-line .instructions{font-size:10px !important;}
+  .round-info-row .round-meta-line .tiles-inline-title{font-size:11px !important;}
+}
+</style>
+<style id="timer-status-line-final">
+/* FINAL: compact timer sits inside the live/waiting status bar */
+#status,.status,.connection-status,.live-status,.waiting-status{position:relative!important;text-align:center!important;}
+#timerPanel,.timer-panel,.timer-container,#studentTimer,.student-timer-panel{box-sizing:border-box!important;}
+body.teacher-page #timerPanel,body.teacher-page .timer-panel,body.teacher-page .timer-container,.teacher #timerPanel,.teacher .timer-panel,.teacher .timer-container{position:absolute!important;left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:auto!important;max-width:330px!important;margin:0!important;padding:3px 7px!important;min-height:32px!important;z-index:5!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;}
+body.student-page #studentTimer,body.student-page .student-timer-panel,.student #studentTimer,.student .student-timer-panel{position:absolute!important;left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:auto!important;max-width:130px!important;margin:0!important;padding:3px 9px!important;min-height:30px!important;z-index:5!important;}
+#timerPanel button,.timer-panel button,.timer-container button{margin:0!important;padding:5px 9px!important;font-size:10px!important;min-height:26px!important;}
+#timerPanel button+button,.timer-panel button+button,.timer-container button+button{margin-left:5px!important;}
+@media(max-width:700px){body.teacher-page #timerPanel,body.teacher-page .timer-panel,body.teacher-page .timer-container,.teacher #timerPanel,.teacher .timer-panel,.teacher .timer-container{left:5px!important;max-width:250px!important;gap:4px!important;padding:2px 4px!important;}#timerPanel button,.timer-panel button,.timer-container button{padding:4px 6px!important;font-size:9px!important;}}
+</style>
+<style id="final-status-line-timer">
+/* ===== FINAL: TIMER INSIDE THE WAITING / CONNECTION STATUS LINE ===== */
+.live-status{
+  position:relative !important;
+  min-height:40px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  padding:4px 170px 4px 170px !important;
+  text-align:center !important;
+}
+
+/* Teacher timer: left side of the same status line. */
+.live-status .timer-panel{
+  position:absolute !important;
+  left:8px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:auto !important;
+  max-width:330px !important;
+  margin:0 !important;
+  padding:3px 7px !important;
+  min-height:31px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+  z-index:10 !important;
+}
+
+/* Student timer: only the display, same left position. */
+.live-status .student-timer-panel{
+  position:absolute !important;
+  left:8px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:auto !important;
+  max-width:120px !important;
+  margin:0 !important;
+  padding:3px 9px !important;
+  min-height:30px !important;
+  z-index:10 !important;
+}
+
+/* Teacher button spacing. */
+.live-status .timer-actions{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+}
+.live-status .timer-panel button{
+  margin:0 !important;
+  padding:5px 9px !important;
+  min-height:26px !important;
+  font-size:10px !important;
+}
+.live-status .timer-panel button + button{
+  margin-left:0 !important;
+}
+
+/* Center the waiting/connection text itself. */
+.live-status #liveStatus{
+  display:block !important;
+  width:100% !important;
+  text-align:center !important;
+  margin:0 !important;
+}
+
+/* The metadata below remains in its own 3 centered lines. */
+.round-info-row{
+  display:block !important;
+  width:100% !important;
+  margin:5px 0 7px !important;
+}
+.round-info-row .round-meta-line{
+  width:100% !important;
+  display:block !important;
+  text-align:center !important;
+}
+.round-info-row .round-meta-line .tab-note,
+.round-info-row .round-meta-line .instructions,
+.round-info-row .round-meta-line .tiles-inline-title{
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  text-align:center !important;
+  line-height:1.35 !important;
+}
+
+/* Mobile: still one status line, compact controls. */
+@media (max-width:700px){
+  .live-status{
+    min-height:38px !important;
+    padding:3px 115px 3px 115px !important;
+  }
+  .live-status .timer-panel{
+    left:4px !important;
+    gap:4px !important;
+    padding:2px 4px !important;
+  }
+  .live-status .timer-actions{gap:5px !important;}
+  .live-status .timer-panel button{
+    padding:4px 6px !important;
+    min-height:24px !important;
+    font-size:9px !important;
+  }
+  .live-status .student-timer-panel{
+    left:4px !important;
+    padding:2px 7px !important;
+  }
+}
+</style>
 </head>
 <body class="teacher-view">
-<div class="wrap"><div class="live-status"><span class="live-dot" id="liveDot"></span><span id="liveStatus">Connecting live…</span></div>
+<div class="wrap"><div class="live-status"><div class="timer-panel" aria-label="Round timer controls">
+    <span class="timer-display" id="timerDisplay">2:00</span>
+    <div class="timer-actions">
+      <button class="control primary timer-small" id="timerStart" type="button">Start</button>
+      <button class="control secondary timer-small" id="timerPause" type="button">Pause</button>
+      <button class="control ghost timer-small" id="timerReset" type="button">Reset</button>
+    </div>
+  </div><span class="live-dot" id="liveDot"></span><span id="liveStatus">Connecting live…</span></div>
 <div class="live-result" id="liveResult"></div>
 <div class="live-drag-card" id="liveDragCard"></div>
+
 
 <div class="tabs" role="tablist">
 <button class="tab-btn active" data-tab="0">الاخلاص</button>
@@ -136,9 +437,15 @@ button.control{border:0;border-radius:13px;padding:12px 18px;font-weight:800;fon
 <button class="tab-btn" data-tab="2">الديانة</button>
 <button class="tab-btn" data-tab="3">الامانة</button>
 </div>
-<div class="tab-note" id="tabNote">إخلاص — 10 tiles</div>
-<div class="instructions">Drag the tiles from above into the numbered boxes below in the correct Qur'anic sequence.</div>
-<div class="section-title">Tiles</div>
+
+<div class="round-info-row teacher-only" aria-label="Round information">
+  
+  <div class="round-meta-line">
+    <div class="tab-note" id="tabNote">إخلاص — 10 tiles</div>
+    <div class="instructions">Drag the tiles from above into the numbered boxes below in the correct Qur'anic sequence.</div>
+    <div class="section-title tiles-inline-title">Tiles</div>
+  </div>
+</div>
 <div id="board"></div>
 <div class="section-title">Correct Sequence — drag tiles here</div>
 <div id="answerBoard" dir="rtl"></div>
@@ -219,10 +526,12 @@ document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>
 render();
 </script>
 
+<audio id="timerAudio" preload="auto"><source src="/Timer.wav" type="audio/wav"></audio>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 (function(){
   const socket=io();
+  window.quranSocket=socket;
   const ROLE='teacher';
   const liveDot=document.getElementById('liveDot');
   const liveStatus=document.getElementById('liveStatus');
@@ -247,6 +556,7 @@ render();
     placements=state.placements.map(a=>[...a]);
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',+b.dataset.tab===activeTab));
     render();
+    if(window.applyTimerState) window.applyTimerState(state.timer);
 
     // Mirror the student's exact answer result on the teacher display.
     document.querySelectorAll('.answer-slot').forEach(slot=>slot.classList.remove('correct','wrong'));
@@ -340,7 +650,182 @@ render();
   }
 })();
 </script>
+<script>
+
+/* ===== Synchronized round timer ===== */
+(function(){
+  const timerDisplay = document.getElementById('timerDisplay');
+  const audio = document.getElementById('timerAudio');
+
+  // IMPORTANT: declare the button references BEFORE paint() uses them.
+  const startBtn = document.getElementById('timerStart');
+  const pauseBtn = document.getElementById('timerPause');
+  const resetBtn = document.getElementById('timerReset');
+  const liveSocket = window.quranSocket;
+
+  let timerState = {
+    active:false,
+    paused:false,
+    duration:120,
+    startedAt:null,
+    endsAt:null,
+    endedAt:null,
+    remainingMs:120000
+  };
+  let lastEndedAt = null;
+  let ticker = null;
+
+  function formatTime(totalSeconds){
+    const safe = Math.max(0, Math.ceil(totalSeconds));
+    const m = Math.floor(safe / 60);
+    const sec = String(safe % 60).padStart(2,'0');
+    return `${m}:${sec}`;
+  }
+
+  function paint(){
+    const now = Date.now();
+
+    const remainingMs =
+      timerState.active && timerState.endsAt
+        ? Math.max(0, timerState.endsAt - now)
+        : (
+            timerState.paused
+              ? Math.max(0, Number(timerState.remainingMs) || 0)
+              : (timerState.endedAt ? 0 : 120000)
+          );
+
+    if(timerDisplay){
+      timerDisplay.textContent = formatTime(remainingMs / 1000);
+      timerDisplay.classList.toggle(
+        'time-up',
+        remainingMs === 0 && !!timerState.endedAt
+      );
+    }
+
+    if(pauseBtn){
+      pauseBtn.textContent = timerState.paused ? 'Resume' : 'Pause';
+    }
+  }
+
+  function startTicker(){
+    if(ticker) return;
+    ticker = setInterval(paint,100);
+  }
+
+  function applyTimerState(state){
+    if(!state) return;
+
+    const previous = timerState;
+    timerState = state;
+
+    paint();
+
+    // Play sound only when an active timer reaches zero.
+    if(
+      state.endedAt &&
+      state.endedAt !== lastEndedAt &&
+      previous.active
+    ){
+      lastEndedAt = state.endedAt;
+
+      if(audio){
+        audio.currentTime = 0;
+        audio.play().catch(()=>{});
+      }
+    }
+  }
+
+  window.applyTimerState = applyTimerState;
+
+  startTicker();
+  paint();
+
+  if(startBtn){
+    startBtn.addEventListener('click',()=>{
+      if(!liveSocket){
+        console.error('Teacher Socket.IO connection is not ready.');
+        return;
+      }
+      liveSocket.emit('teacher:command',{type:'timer:start'});
+    });
+  }
+
+  if(pauseBtn){
+    pauseBtn.addEventListener('click',()=>{
+      if(!liveSocket) return;
+
+      liveSocket.emit(
+        'teacher:command',
+        {type: timerState.paused ? 'timer:start' : 'timer:pause'}
+      );
+    });
+  }
+
+  if(resetBtn){
+    resetBtn.addEventListener('click',()=>{
+      if(!liveSocket) return;
+      liveSocket.emit('teacher:command',{type:'timer:reset'});
+    });
+  }
+})();
+</script>
 </body>
+
+<style id="inlineTimerLayout">
+/* Timer + round label share ONE horizontal row. Timer stays one-tab wide. */
+.round-info-row{display:grid;grid-template-columns:calc((100% - 21px)/4) 1fr;align-items:center;gap:6px;margin:5px 0 6px;}
+.round-info-row .timer-panel{width:100%;margin:0;min-height:38px;display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:nowrap;padding:4px 7px;border:1px solid rgba(184,134,44,.24);border-radius:10px;background:rgba(255,248,232,.82);box-shadow:none;box-sizing:border-box;}
+.round-info-row .timer-display{min-width:48px;font-size:21px;line-height:1;font-weight:900;color:#9a6d2f;font-variant-numeric:tabular-nums;text-align:center;}
+.round-info-row .timer-actions{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:nowrap;}
+.round-info-row .timer-small{padding:4px 7px!important;font-size:10px!important;border-radius:6px!important;min-height:27px;}
+.round-info-row .tab-note{margin:0;text-align:center;font-size:11px;line-height:1.2;}
+@media(max-width:700px){
+  .round-info-row{grid-template-columns:minmax(120px,calc((100% - 21px)/4)) 1fr;gap:5px;margin:4px 0 6px;}
+  .round-info-row .timer-panel{gap:4px;padding:4px 5px;}
+  .round-info-row .timer-display{font-size:19px;min-width:42px;}
+  .round-info-row .timer-small{padding:4px 6px!important;font-size:9px!important;}
+  .round-info-row .tab-note{font-size:10px;}
+}
+</style>
+
+
+<style id="compactRoundMetaFinal">
+/* Timer + round details in one horizontal line, like the four tabs. */
+.round-info-row{display:grid!important;grid-template-columns:25% 75%!important;align-items:center!important;gap:8px!important;margin:5px 0 7px!important;width:100%!important;box-sizing:border-box!important;}
+.round-info-row .round-meta-line{min-width:0;display:flex!important;align-items:center!important;justify-content:center!important;gap:14px!important;white-space:nowrap!important;overflow:hidden!important;}
+.round-info-row .round-meta-line .tab-note,.round-info-row .round-meta-line .instructions,.round-info-row .round-meta-line .tiles-inline-title{margin:0!important;padding:0!important;line-height:1!important;}
+.round-info-row .round-meta-line .tab-note{font-size:11px!important;flex:0 0 auto!important;}
+.round-info-row .round-meta-line .instructions{font-size:11px!important;flex:0 1 auto!important;white-space:nowrap!important;}
+.round-info-row .round-meta-line .tiles-inline-title{font-size:12px!important;flex:0 0 auto!important;}
+.round-info-row .timer-panel,.round-info-row .student-timer-panel{width:100%!important;margin:0!important;box-sizing:border-box!important;}
+@media(max-width:700px){
+  .round-info-row{grid-template-columns:25% 75%!important;gap:5px!important;}
+  .round-info-row .round-meta-line{gap:7px!important;justify-content:flex-start!important;}
+  .round-info-row .round-meta-line .tab-note,.round-info-row .round-meta-line .instructions,.round-info-row .round-meta-line .tiles-inline-title{font-size:9px!important;}
+}
+</style>
+
+<style id="timerOnlyOwnLine">
+/* FINAL: timer gets its own compact line; original round meta stays in its normal 3-line layout. */
+.round-info-row{display:block!important;width:100%!important;margin:5px 0 7px!important;box-sizing:border-box!important;}
+.round-info-row .timer-panel,.round-info-row .student-timer-panel{width:25%!important;min-width:0!important;margin:0 0 6px 0!important;min-height:38px!important;box-sizing:border-box!important;}
+.round-info-row .timer-panel{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;flex-wrap:nowrap!important;padding:4px 6px!important;}
+.round-info-row .student-timer-panel{display:flex!important;align-items:center!important;justify-content:center!important;padding:4px 7px!important;}
+.round-info-row .timer-actions{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;flex-wrap:nowrap!important;}
+.round-info-row .round-meta-line{width:100%!important;display:block!important;white-space:normal!important;overflow:visible!important;text-align:center!important;}
+.round-info-row .round-meta-line .tab-note,.round-info-row .round-meta-line .instructions,.round-info-row .round-meta-line .tiles-inline-title{display:block!important;margin:4px 0!important;padding:0!important;white-space:normal!important;line-height:1.35!important;}
+.round-info-row .round-meta-line .tab-note{font-size:11px!important;}
+.round-info-row .round-meta-line .instructions{font-size:11px!important;}
+.round-info-row .round-meta-line .tiles-inline-title{font-size:12px!important;}
+@media(max-width:700px){
+  .round-info-row .timer-panel,.round-info-row .student-timer-panel{width:25%!important;min-width:110px!important;margin-bottom:5px!important;}
+  .round-info-row .timer-display{font-size:19px!important;min-width:40px!important;}
+  .round-info-row #studentTimerDisplay{font-size:19px!important;}
+  .round-info-row .timer-small{padding:4px 6px!important;font-size:9px!important;}
+  .round-info-row .round-meta-line .tab-note,.round-info-row .round-meta-line .instructions{font-size:10px!important;}
+}
+</style>
+
 </html>
 <style>
 /* iPad landscape / tablet landscape optimization */
@@ -366,4 +851,26 @@ render();
   .answer-item{min-height:70px;padding:6px;border-radius:9px}
   .answer-item .qtext{font-size:17px}
 }
+
+/* Synchronized round timer */
+.timer-panel{width:calc((100% - 21px)/4);margin:6px 0 8px;min-height:42px;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;padding:5px 8px;border:1px solid rgba(184,134,44,.24);border-radius:11px;background:rgba(255,248,232,.88);box-shadow:none;box-sizing:border-box}
+.timer-title{font-weight:900;color:#75552b;font-size:14px}
+.timer-display{min-width:48px;text-align:center;font-size:24px;line-height:1;font-weight:900;color:#9a6d2f;font-variant-numeric:tabular-nums}
+.timer-display.time-up{color:#b34d42;animation:timerPulse .55s ease-in-out 2}
+.timer-actions{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}
+.timer-panel .control{margin:0;padding:5px 8px;font-size:11px;border-radius:7px}
+.timer-sound{display:flex;align-items:center;gap:6px;color:#755f49;font-size:12px;font-weight:700}
+.timer-sound input{width:16px;height:16px;accent-color:#b8862c}
+@keyframes timerPulse{50%{transform:scale(1.13)}}
+@media(max-width:700px){.timer-panel{width:calc((100% - 21px)/4);min-width:210px;gap:9px}.timer-display{font-size:28px}.timer-actions{width:100%}}
+</style>
+
+<style>
+.timer-panel{margin:7px auto 8px;max-width:1100px;display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 10px;border:1px solid rgba(184,134,44,.24);border-radius:10px;background:rgba(255,248,232,.82);box-shadow:none}
+.timer-display{min-width:54px;font-size:22px;line-height:1;font-weight:900;color:#9a6d2f;font-variant-numeric:tabular-nums;text-align:center}
+.timer-display.time-up{color:#b34d42;animation:timerPulse .55s ease-in-out 2}
+.timer-actions{display:flex;align-items:center;gap:5px}
+.timer-small{padding:5px 9px!important;font-size:11px!important;border-radius:7px!important;min-height:30px}
+@keyframes timerPulse{50%{transform:scale(1.1)}}
+@media(max-width:700px){.timer-panel{width:calc((100% - 21px)/4);min-width:210px;margin:5px auto 7px;padding:4px 7px}.timer-display{font-size:20px}.timer-small{padding:5px 8px!important;font-size:10px!important}}
 </style>
