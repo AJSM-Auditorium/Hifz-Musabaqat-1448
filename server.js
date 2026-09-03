@@ -29,6 +29,7 @@ let liveState = {
 };
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/health', (req,res) => res.status(200).json({ok:true}));
 app.get('/', (req,res) => res.redirect('/student'));
 app.get('/student', (req,res) => res.sendFile(path.join(__dirname,'public','student.html')));
 app.get('/teacher', (req,res) => res.sendFile(path.join(__dirname,'public','teacher.html')));
