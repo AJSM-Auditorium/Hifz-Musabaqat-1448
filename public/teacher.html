@@ -741,6 +741,15 @@ render();
   paint();
 
   async function sendTimerCommand(type){
+    // Socket.IO is the primary live transport. HTTP is only a fallback.
+    // This avoids unnecessary 404 requests when a Render proxy does not
+    // expose the optional REST timer endpoints.
+    const socket = window.quranSocket;
+    if(socket && socket.connected){
+      socket.emit('teacher:command',{type});
+      return;
+    }
+
     const endpoint = type === 'timer:start'
       ? '/api/timer/start'
       : type === 'timer:pause'
@@ -757,13 +766,7 @@ render();
       const state = await response.json();
       applyTimerState(state);
     }catch(error){
-      console.warn('HTTP timer command failed; using live Socket.IO fallback.', error);
-      const socket = window.quranSocket;
-      if(socket && socket.connected){
-        socket.emit('teacher:command',{type});
-      }else{
-        console.error('Timer connection is not ready.');
-      }
+      console.error('Timer command failed:', error);
     }
   }
 
