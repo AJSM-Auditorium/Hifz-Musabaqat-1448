@@ -24,6 +24,7 @@ let liveState = {
   score: null,
   submitted: false,
   result: null,
+  timer: { active: false, paused: false, duration: 120, startedAt: null, endsAt: null, endedAt: null, remainingMs: 120000 },
   updatedAt: Date.now()
 };
 
@@ -31,6 +32,72 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req,res) => res.redirect('/student'));
 app.get('/student', (req,res) => res.sendFile(path.join(__dirname,'public','student.html')));
 app.get('/teacher', (req,res) => res.sendFile(path.join(__dirname,'public','teacher.html')));
+
+app.post('/api/timer/start', (req,res) => {
+  startTimer();
+  res.set('Cache-Control','no-store');
+  res.json(liveState.timer);
+});
+app.post('/api/timer/pause', (req,res) => {
+  pauseTimer();
+  res.set('Cache-Control','no-store');
+  res.json(liveState.timer);
+});
+app.post('/api/timer/reset', (req,res) => {
+  resetTimer();
+  res.set('Cache-Control','no-store');
+  res.json(liveState.timer);
+});
+
+let timerTimeout = null;
+
+function clearTimerTimeout() {
+  if (timerTimeout) {
+    clearTimeout(timerTimeout);
+    timerTimeout = null;
+  }
+}
+
+function startTimer() {
+  clearTimerTimeout();
+  const now = Date.now();
+  const current = liveState.timer || {};
+  const duration = 120;
+  const remainingMs = current.paused && Number.isFinite(current.remainingMs)
+    ? Math.max(0, current.remainingMs)
+    : duration * 1000;
+
+  liveState.timer = {
+    active: true,
+    paused: false,
+    duration,
+    startedAt: now,
+    endsAt: now + remainingMs,
+    endedAt: null,
+    remainingMs
+  };
+  broadcast();
+
+  timerTimeout = setTimeout(() => {
+    liveState.timer = { ...liveState.timer, active: false, paused: false, remainingMs: 0, endedAt: Date.now() };
+    timerTimeout = null;
+    broadcast();
+  }, remainingMs + 50);
+}
+
+function pauseTimer() {
+  if (!liveState.timer?.active) return;
+  const remainingMs = Math.max(0, liveState.timer.endsAt - Date.now());
+  clearTimerTimeout();
+  liveState.timer = { ...liveState.timer, active: false, paused: true, endsAt: null, remainingMs };
+  broadcast();
+}
+
+function resetTimer() {
+  clearTimerTimeout();
+  liveState.timer = { active: false, paused: false, duration: 120, startedAt: null, endsAt: null, endedAt: null, remainingMs: 120000 };
+  broadcast();
+}
 
 function broadcast() {
   liveState.updatedAt = Date.now();
@@ -56,6 +123,20 @@ io.on('connection', socket => {
 
   socket.on('teacher:command', command => {
     if (!command || typeof command !== 'object') return;
+
+    if (command.type === 'timer:start') {
+      startTimer();
+      return;
+    }
+    if (command.type === 'timer:pause') {
+      pauseTimer();
+      return;
+    }
+    if (command.type === 'timer:reset') {
+      resetTimer();
+      return;
+    }
+
     if (!['submit','shuffle','reset'].includes(command.type)) return;
     // Forward teacher controls to the connected student. The student performs
     // the action with the same application logic and broadcasts the resulting
@@ -68,7 +149,7 @@ io.on('connection', socket => {
       activeTab: liveState.activeTab,
       orders: initialOrders.map(a => [...a]),
       placements: Array.from({length:4}, () => Array(10).fill(null)),
-      status: 'waiting', drag: null, score: null, submitted: false, result: null, updatedAt: Date.now()
+      status: 'waiting', drag: null, score: null, submitted: false, result: null, timer: { active: false, paused: false, duration: 120, startedAt: null, endsAt: null, endedAt: null, remainingMs: 120000 }, updatedAt: Date.now()
     };
     broadcast();
   });
